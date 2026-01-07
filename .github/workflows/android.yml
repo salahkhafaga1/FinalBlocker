@@ -1,21 +1,31 @@
-name: Build App
+name: Debug Build
 on: [push]
 jobs:
-  build:
+  debug_build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
+      # هذه الخطوة ستطبع لنا شجرة الملفات لنعرف أين تختفي!
+      - name: 📂 Show Files Structure
+        run: find . -maxdepth 3 -not -path '*/.*'
+
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: '8.0'
-      - name: Build APK
-        run: gradle assembleDebug
+
+      # محاولة البناء مع تفاصيل الأخطاء
+      - name: Build APK with Logs
+        run: gradle assembleDebug --stacktrace
+        
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v3
         with:
           name: app-debug
